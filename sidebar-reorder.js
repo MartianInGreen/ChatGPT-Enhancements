@@ -709,6 +709,9 @@
         // Apply the current preference immediately
         const sortList = loadCustomSort();
         reorderGPTs(sortList, seeLessPreference ? loadHiddenGPTs() : []);
+
+        // Update button states after injection
+        updateButtonStates();
     }    
     
     // Function to attach a click listener to GPT items to reapply sort when a GPT is clicked
