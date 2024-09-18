@@ -19,6 +19,8 @@ This script is designed for use on the ChatGPT platform (https://\*.chatgpt.com/
 ### Author
 - **MartianInGreen**
 
+I'm very happy to accept issues or pull requests on the [GitHub repository](https://github.com/MartianInGreen/ChatGPT-Enhancements).
+
 ### License
 - **MIT License**
 

@@ -33,6 +33,8 @@ The ChatGPT Message Tracker is a userscript designed to help you monitor and man
 - The script is open-source and can be modified to fit your specific needs.
 - Please ensure you trust the source and understand the functionality of the script before installation.
 
+I'm very happy to accept issues or pull requests on the [GitHub repository](https://github.com/MartianInGreen/ChatGPT-Enhancements).
+
 ### License:
 
 This script is distributed under the MIT License.
