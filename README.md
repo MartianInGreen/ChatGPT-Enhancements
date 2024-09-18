@@ -1,6 +1,4 @@
 # ChatGPT-Enhancements
-UserScript enhancements for ChatGPT
-# ChatGPT-Enhancements
 
 UserScript enhancements for ChatGPT
 
