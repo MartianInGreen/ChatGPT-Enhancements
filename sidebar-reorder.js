@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         ChatGPT Sidebar GPT Reorder
 // @namespace    http://tampermonkey.net/
-// @version      1.4
-// @description  Reorder GPTs in ChatGPT sidebar with a custom sort list and add "See less" functionality.
+// @version      1.5
+// @description  Reorder GPTs in ChatGPT sidebar with a custom sort list.
 // @author       @MartianInGreen
 // @match        https://*.chatgpt.com/*
 // @grant        none
@@ -14,6 +14,18 @@
 (function() {
     'use strict';
 
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }    
+
     // Configuration
     const CUSTOM_SORT_KEY = 'customGPTSort';
     const HIDDEN_GPTS_KEY = 'hiddenGPTs';
@@ -22,6 +34,7 @@
     const SEE_MORE_BUTTON_ID = 'see-more-button';
     const MODAL_ID = 'gpt-sort-modal-overlay';
     const MAX_VISIBLE_GPTS = 5; // Number of GPTs to show when "See less" is activated
+    const SEE_LESS_PREFERENCE_KEY = 'chatgpt_see_less_preference';
 
     // Add CSS for hidden GPTs
     const style = document.createElement('style');
@@ -109,6 +122,25 @@
         return data ? JSON.parse(data) : [];
     }
 
+    // Function to update button states based on visible GPTs
+    function updateButtonStates() {
+        const allGPTs = getAllGPTs();
+        const visibleGPTs = allGPTs.filter(gpt => !gpt.classList.contains('hidden-gpt'));
+        const seeLessButton = document.getElementById(SEE_LESS_BUTTON_ID);
+        const seeMoreButton = document.getElementById(SEE_MORE_BUTTON_ID);
+    
+        if (seeLessButton && seeMoreButton) {
+            if (visibleGPTs.length < allGPTs.length) {
+                seeLessButton.style.display = 'none';
+                seeMoreButton.style.display = 'inline-block';
+            } else {
+                seeLessButton.style.display = 'inline-block';
+                seeMoreButton.style.display = 'none';
+            }
+        }
+    }
+      
+
     // Function to initialize custom sort
     function initializeCustomSort() {
         const gpts = getAllGPTs();
@@ -124,7 +156,6 @@
         return sortList;
     }
 
-
     // Function to reorder GPTs based on sort list and hidden list
     function reorderGPTs(sortList, hiddenList = []) {
         const gptContainer = getGPTContainer();
@@ -136,7 +167,7 @@
         const gpts = getAllGPTs();
         const gptMap = {};
         gpts.forEach(gpt => {
-            const nameElement = gpt.querySelector('div.text-sm.text-token-text-primary'); // Update selector if necessary
+            const nameElement = gpt.querySelector('div.text-sm.text-token-text-primary');
             const name = nameElement ? nameElement.textContent.trim() : '';
             if (name) {
                 gptMap[name] = gpt;
@@ -164,6 +195,12 @@
             saveCustomSort(sortList);
         }
 
+        const seeLessPreference = getSeeLessPreference();
+        if (seeLessPreference) {
+            hiddenList = sortList.slice(MAX_VISIBLE_GPTS).map(item => item.name);
+            saveHiddenGPTs(hiddenList);
+        }
+
         // Apply hidden class based on hiddenList
         Object.keys(gptMap).forEach(name => {
             if (hiddenList.includes(name)) {
@@ -180,8 +217,9 @@
                 gptContainer.appendChild(gpt);
             }
         });
-    }
 
+        updateButtonStates();
+    }
 
     // Function to create the Sort UI Modal
     function createSortModal(sortList) {
@@ -552,6 +590,17 @@
         });
     }
 
+    // Function to get the "See Less" preference
+    function getSeeLessPreference() {
+        return localStorage.getItem(SEE_LESS_PREFERENCE_KEY) === 'true';
+    }
+    
+    // Function to set the "See Less" preference
+    function setSeeLessPreference(value) {
+        localStorage.setItem(SEE_LESS_PREFERENCE_KEY, value.toString());
+    }
+    
+
     // Function to create and inject the "Reorder GPTs" and "See Less/See More" buttons
     function injectSortAndSeeButtons() {
         const existingReorderButton = document.getElementById(REORDER_BUTTON_ID);
@@ -622,9 +671,13 @@
             color: '#fff',
             border: 'none',
             borderRadius: '4px',
-            cursor: 'pointer',
-            display: 'none' // Initially hidden
+            cursor: 'pointer'
         });
+
+        // Set initial button visibility based on localStorage preference
+        const seeLessPreference = getSeeLessPreference();
+        seeLessButton.style.display = seeLessPreference ? 'none' : 'inline-block';
+        seeMoreButton.style.display = seeLessPreference ? 'inline-block' : 'none';
 
         // Append buttons to the container
         buttonContainer.appendChild(reorderButton);
@@ -637,59 +690,27 @@
 
         // Event listener for "See Less"
         seeLessButton.addEventListener('click', () => {
-            const allGPTs = getAllGPTs();
-            if (allGPTs.length <= MAX_VISIBLE_GPTS) {
-                console.log(`There are ${allGPTs.length} GPTs, which is within the visible limit.`);
-                return;
-            }
-
-            const hiddenGPTs = allGPTs.slice(MAX_VISIBLE_GPTS).map(gpt => {
-                const nameElement = gpt.querySelector('div.text-sm.text-token-text-primary'); // Update selector if necessary
-                return nameElement ? nameElement.textContent.trim() : '';
-            });
-
-            // Save hidden GPTs to localStorage
-            saveHiddenGPTs(hiddenGPTs);
-
-            // Reorder GPTs with hidden GPTs
+            setSeeLessPreference(true);
             const sortList = loadCustomSort();
-            reorderGPTs(sortList, hiddenGPTs);
-
-            // Toggle button visibility
+            reorderGPTs(sortList);
             seeLessButton.style.display = 'none';
             seeMoreButton.style.display = 'inline-block';
-        });
+        });        
 
         // Event listener for "See More"
         seeMoreButton.addEventListener('click', () => {
-            const hiddenGPTs = loadHiddenGPTs();
-            if (hiddenGPTs.length === 0) {
-                console.log('No GPTs are hidden.');
-                return;
-            }
-
-            // Reorder GPTs without hidden GPTs
+            setSeeLessPreference(false);
             const sortList = loadCustomSort();
             reorderGPTs(sortList, []);
-
-            // Clear hidden GPTs from localStorage
-            saveHiddenGPTs([]);
-
-            // Toggle button visibility
             seeLessButton.style.display = 'inline-block';
             seeMoreButton.style.display = 'none';
         });
-
-        // Automatically click the "See Less" button to set the default state
-        const allGPTs = getAllGPTs();
-        if (allGPTs.length > MAX_VISIBLE_GPTS) {
-           if (seeLessButton && window.getComputedStyle(seeLessButton).display !== 'none') {
-               seeLessButton.click();
-           }
-        }
-    }
-
-
+        
+        // Apply the current preference immediately
+        const sortList = loadCustomSort();
+        reorderGPTs(sortList, seeLessPreference ? loadHiddenGPTs() : []);
+    }    
+    
     // Function to attach a click listener to GPT items to reapply sort when a GPT is clicked
     async function attachGPTClickListener(gptContainer) {
         gptContainer.addEventListener('click', function(event) {
@@ -748,6 +769,10 @@
         try {
             console.log('ChatGPT Sidebar GPT Reorder script started.');
 
+            if (localStorage.getItem(SEE_LESS_PREFERENCE_KEY) === null) {
+                setSeeLessPreference(true); // Set default to "see less"
+            }
+
             // Wait for the sidebar button to load
             const sidebarButton = await waitForElement(identifyTargetButton, 20000);
             if (!sidebarButton) {
@@ -786,6 +811,8 @@
                 attachGPTClickListener(gptContainer);
             }
 
+            updateButtonStates();
+
         } catch (error) {
             console.error('ChatGPT Sidebar GPT Reorder script error:', error);
         }
@@ -799,27 +826,12 @@
 
     let url = window.location.href;
 
-    // Optional: Use a MutationObserver to detect URL changes not caused by popstate (e.g., SPA routing)
+    const debouncedMain = debounce(main, 300);
+
     const observer = new MutationObserver(() => {
         if (window.location.href !== url) {
             url = window.location.href;
-            main();
-            setTimeout(function() {
-                const seeLessButton = document.getElementById("see-less-button");
-
-                // Check if the button exists and is not 'display: none'
-                if (seeLessButton && window.getComputedStyle(seeLessButton).display !== 'none') {
-                    seeLessButton.click();
-                }
-            }, 1000);
-            setTimeout(function() {
-                const seeLessButton = document.getElementById("see-less-button");
-
-                // Check if the button exists and is not 'display: none'
-                if (seeLessButton && window.getComputedStyle(seeLessButton).display !== 'none') {
-                    seeLessButton.click();
-                }
-            }, 2000);
+            debouncedMain();
         }
     });
 
@@ -831,13 +843,6 @@
         document.addEventListener('DOMContentLoaded', main);
     } else {
         main();
-        setTimeout(function() {
-            const allGPTs = getAllGPTs();
-            if (allGPTs.length > MAX_VISIBLE_GPTS) {
-                const seeLessButton = document.getElementById("see-less-button")
-                seeLessButton.click();
-            }
-        }, 1000);
     }
 
 })();

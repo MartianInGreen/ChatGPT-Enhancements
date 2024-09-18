@@ -21,3 +21,11 @@ This script is designed for use on the ChatGPT platform (https://\*.chatgpt.com/
 
 ### License
 - **MIT License**
+
+---
+
+### Changelog
+
+#### Version 1.5
+- **Fixed**: Desync of button and expanded/collapsed state of the sidebar. 
+- **Made less problematic**: Expansion of the sidebar without user interaction.
