@@ -14,7 +14,7 @@ Monitor and manage your message usage across different ChatGPT models with real-
 
 ## Installation
 
-To use these scripts, you'll need a browser extension like Tampermonkey or Violentmonkey. Simply copy the script and add it to your extension.
+To use these scripts, you'll need a browser extension like Tampermonkey or Violentmonkey. Simply copy the script and add it to your extension. Or go to the Greasyfork page and click on the "Install" button.
 
 ## License
 
