@@ -28,7 +28,10 @@ I'm very happy to accept issues or pull requests on the [GitHub repository](http
 
 ### Changelog
 
-#### Version 1.5.1 (current)
+#### Version 1.5.2 (Current)
+- **Compatibility**: Improved compatibility with my Artefacts script.
+
+#### Version 1.5.1 
 - **UI**: Removed the default "See Less" button. 
 
 #### Version 1.5

@@ -12,6 +12,11 @@
 (function () {
   "use strict";
 
+  // Check if we're in an artefact context
+  if (window.location.href.includes('/artefact') || window.parent !== window) {
+    return; // Exit early if we're in an artefact or iframe
+  }
+
   /***********************
    * Configuration
    ***********************/
@@ -256,7 +261,7 @@
   uiContainer.style.padding = "15px";
   uiContainer.style.borderRadius = "8px";
   uiContainer.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
-  uiContainer.style.zIndex = "10000";
+  uiContainer.style.zIndex = "1";
   uiContainer.style.fontFamily = "Arial, sans-serif";
   uiContainer.style.fontSize = "14px";
   uiContainer.style.cursor = "move";

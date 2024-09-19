@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Sidebar GPT Reorder
 // @namespace    http://tampermonkey.net/
-// @version      1.5.1
+// @version      1.5.2
 // @description  Reorder GPTs in ChatGPT sidebar with a custom sort list.
 // @author       @MartianInGreen
 // @match        https://*.chatgpt.com/*
@@ -13,6 +13,11 @@
 
 (function() {
     'use strict';
+
+    // Check if we're in an artefact context
+    if (window.location.href.includes('/artefact') || window.parent !== window) {
+        return; // Exit early if we're in an artefact or iframe
+    }
 
     function debounce(func, wait) {
         let timeout;

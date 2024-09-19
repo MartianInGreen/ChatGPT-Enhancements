@@ -43,7 +43,10 @@ This script is distributed under the MIT License.
 
 ### Changelog
 
-#### Version 1.4.1 (Current)
+#### Version 1.4.2 (Current)
+- **Compatibility**: Improved compatibility with my Artefacts script.
+
+#### Version 1.4.1 
 - **UI**: Changed shape, color and position of the show tracker button to better match native ChatGPT UI.
 
 #### Version 1.4 
