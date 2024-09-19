@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Message Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.4.2
+// @version      1.4.3
 // @description  Tracks and displays ChatGPT message usage based on model limits, with a toggle button to reopen the info panel. Adds support for gpt-4 model, makes model usage collapsible, and persists collapse state between page reloads.
 // @author       @MartianInGreen
 // @license      MIT
@@ -158,16 +158,7 @@
 
     // If the model is gpt-4, also log it towards gpt-4o
     if (model === "gpt-4") {
-      const gpt4oModel = "gpt-4o";
-      if (!usageData[gpt4oModel]) {
-        usageData[gpt4oModel] = [];
-      }
-      usageData[gpt4oModel].push(now);
-      const gpt4oWindow = MODEL_LIMITS[gpt4oModel].window;
-      usageData[gpt4oModel] = cleanTimestamps(
-        usageData[gpt4oModel],
-        gpt4oWindow
-      );
+      logGpt4oMessage(now);
     }
 
     // Save updated data
@@ -177,6 +168,16 @@
     updateUI();
   }
 
+  function logGpt4oMessage(timestamp) {
+    const gpt4oModel = "gpt-4o";
+    if (!usageData[gpt4oModel]) {
+      usageData[gpt4oModel] = [];
+    }
+    usageData[gpt4oModel].push(timestamp);
+    const gpt4oWindow = MODEL_LIMITS[gpt4oModel].window;
+    usageData[gpt4oModel] = cleanTimestamps(usageData[gpt4oModel], gpt4oWindow);
+  }
+  
   /***********************
    * Network Interception
    ***********************/
@@ -194,9 +195,15 @@
           if (config && config.method === "POST" && config.body) {
             try {
               const body = JSON.parse(config.body);
-              const model = body.model;
-              if (model) {
-                logMessage(model);
+              let modelToLog = body.model;
+          
+              // Check for gizmo_interaction
+              if (body.conversation_mode && body.conversation_mode.kind === "gizmo_interaction") {
+                modelToLog = "gpt-4o";
+              }
+          
+              if (modelToLog) {
+                logMessage(modelToLog);
               }
             } catch (e) {
               console.error("Failed to parse fetch request body:", e);

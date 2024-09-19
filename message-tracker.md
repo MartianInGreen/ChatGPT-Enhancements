@@ -43,7 +43,10 @@ This script is distributed under the MIT License.
 
 ### Changelog
 
-#### Version 1.4.2 (Current)
+#### Version 1.4.3 (Current)
+- **Fix**: GPTs now always update the gpt-4o usage limit.
+
+#### Version 1.4.2 
 - **Compatibility**: Improved compatibility with my Artefacts script.
 - **UI**: Enhanced auto update of times.
 
