@@ -45,6 +45,7 @@ This script is distributed under the MIT License.
 
 #### Version 1.4.2 (Current)
 - **Compatibility**: Improved compatibility with my Artefacts script.
+- **UI**: Enhanced auto update of times.
 
 #### Version 1.4.1 
 - **UI**: Changed shape, color and position of the show tracker button to better match native ChatGPT UI.
