@@ -28,6 +28,9 @@ I'm very happy to accept issues or pull requests on the [GitHub repository](http
 
 ### Changelog
 
+#### Version 1.5.1 (current)
+- **UI**: Removed the default "See Less" button. 
+
 #### Version 1.5
 - **Fixed**: Desync of button and expanded/collapsed state of the sidebar. 
 - **Made less problematic**: Expansion of the sidebar without user interaction.

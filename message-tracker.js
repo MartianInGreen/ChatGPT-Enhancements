@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Message Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.4.1
 // @description  Tracks and displays ChatGPT message usage based on model limits, with a toggle button to reopen the info panel. Adds support for gpt-4 model, makes model usage collapsible, and persists collapse state between page reloads.
 // @author       @MartianInGreen
 // @license      MIT
@@ -459,20 +459,23 @@
 
   // Create the toggle button
   const toggleButton = document.createElement("button");
-  toggleButton.textContent = "📊 Show Tracker";
+  toggleButton.textContent = "📊";
+  toggleButton.style.fontSize = "10px";
   toggleButton.style.position = "fixed";
-  toggleButton.style.bottom = "20px";
-  toggleButton.style.right = "40px";
-  toggleButton.style.padding = "10px 15px";
-  toggleButton.style.backgroundColor = "#008cba";
+  toggleButton.style.bottom = "40px";
+  toggleButton.style.right = "12px";
+  toggleButton.style.width = "22px";
+  toggleButton.style.height = "22px";
+  toggleButton.style.backgroundColor = "#212121";
   toggleButton.style.color = "#fff";
-  toggleButton.style.border = "none";
-  toggleButton.style.borderRadius = "5px";
+  toggleButton.style.border = "2px solid #676767";
+  toggleButton.style.borderRadius = "50%";
   toggleButton.style.cursor = "pointer";
   toggleButton.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
   toggleButton.style.zIndex = "10000";
-  toggleButton.style.fontSize = "14px";
-  toggleButton.style.display = "none"; // Initially hidden since panel is visible
+  toggleButton.style.display = "none"; // Correctly kept as hidden initially
+  toggleButton.style.justifyContent = "center";
+  toggleButton.style.alignItems = "center";
 
   toggleButton.addEventListener("click", () => {
     uiContainer.style.display = "block";

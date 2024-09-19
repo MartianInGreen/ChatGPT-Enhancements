@@ -43,7 +43,10 @@ This script is distributed under the MIT License.
 
 ### Changelog
 
-#### Version 1.4 (Current)
+#### Version 1.4.1 (Current)
+- **UI**: Changed shape, color and position of the show tracker button to better match native ChatGPT UI.
+
+#### Version 1.4 
 - **Added** support for the `gpt-4` model with a limit of 40 messages per 3 hours, which counts towards the `gpt-4o` usage cap.
 - **Implemented** a feature to persist the collapsed or expanded state of each model's usage details between page reloads using `localStorage`.
 - **Enhanced** the user interface with collapsible sections for each model, improving organization and readability.

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Sidebar GPT Reorder
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.5.1
 // @description  Reorder GPTs in ChatGPT sidebar with a custom sort list.
 // @author       @MartianInGreen
 // @match        https://*.chatgpt.com/*
@@ -87,7 +87,7 @@
     function getAllGPTs() {
         // Updated selector based on provided HTML
         const gpts = Array.from(document.querySelectorAll('div[tabindex="0"] > a.group.flex.h-10'));
-        console.log('Found GPTs:', gpts);
+        //console.log('Found GPTs:', gpts);
         return gpts;
     }
 
@@ -726,7 +726,7 @@
             const gptItem = event.target.closest('a.group.flex.h-10');
             if (gptItem) {
                 console.log('GPT item clicked:', gptItem);
-
+    
                 // Identify the sidebar button
                 const sidebarButton = identifyTargetButton();
                 if (!sidebarButton) {
@@ -734,16 +734,16 @@
                     return;
                 }
                 console.log('Sidebar button found:', sidebarButton);
-
+    
                 // Click the button to load all GPTs
                 sidebarButton.click();
                 console.log('Sidebar button clicked to load all GPTs.');
-
+    
                 try {
                     // Wait for GPTs to load
                     await waitForElement(() => getAllGPTs().length > 0, 20000);
                     console.log('GPTs loaded.');
-
+    
                     // Initialize or load custom sort
                     let sortList = loadCustomSort();
                     if (!sortList) {
@@ -752,12 +752,22 @@
                     } else {
                         console.log('Custom sort loaded from localStorage.');
                     }
-
+    
                     // Reorder GPTs with hidden GPTs
                     const hiddenGPTs = loadHiddenGPTs();
                     reorderGPTs(sortList, hiddenGPTs);
                     console.log('GPTs reordered based on custom sort.');
-
+    
+                    // Remove the "See Less" button
+                    const buttons = document.querySelectorAll('button.flex.h-10.w-full.items-center.gap-2.rounded-lg.px-2.text-sm.text-token-text-primary');
+                    const seeLessButton = Array.from(buttons).find(button => 
+                        button.textContent.includes('See less')
+                    );
+                    if (seeLessButton) {
+                        seeLessButton.remove();
+                        console.log('"See Less" button removed.');
+                    }
+    
                     // Inject the "Reorder GPTs" and "See Less/See More" buttons
                     injectSortAndSeeButtons();
                 } catch (err) {
@@ -765,7 +775,7 @@
                 }
             }
         }, 2000);
-    }
+    }    
 
     // Main function to orchestrate the script
     async function main() {
@@ -815,6 +825,17 @@
             }
 
             updateButtonStates();
+
+            // Remove the "See Less" button
+            const buttons = document.querySelectorAll('button.flex.h-10.w-full.items-center.gap-2.rounded-lg.px-2.text-sm.text-token-text-primary');
+            const seeLessButton = Array.from(buttons).find(button => 
+                button.textContent.includes('See less')
+            );
+            if (seeLessButton) {
+                seeLessButton.remove();
+                console.log('"See Less" button removed.');
+            }
+
 
         } catch (error) {
             console.error('ChatGPT Sidebar GPT Reorder script error:', error);
