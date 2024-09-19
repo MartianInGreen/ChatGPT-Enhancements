@@ -39,7 +39,7 @@ This script is designed for use on the ChatGPT platform (https://\*.chatgpt.com/
 ### Author:
 
 - **MartianInGreen**
-- Base of script made by [CurtisAccelerate](https://github.com/CurtisAccelerate) @ [GitHub Gist](https://gist.github.com/CurtisAccelerate/64a20b1d5df6240119bb0a3f4b5abf31) / [Twitter Post](https://x.com/BBacktesting/status/1804481588941533255)
+- Based on script made by [CurtisAccelerate](https://github.com/CurtisAccelerate) @ [GitHub Gist](https://gist.github.com/CurtisAccelerate/64a20b1d5df6240119bb0a3f4b5abf31) / [Twitter Post](https://x.com/BBacktesting/status/1804481588941533255)
   
 Issues and pull requests are welcome on the [GitHub repository](https://github.com/MartianInGreen/ChatGPT-Enhancements).
 
