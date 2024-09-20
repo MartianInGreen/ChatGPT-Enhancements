@@ -28,6 +28,7 @@ ChatGPT Artefacts is a userscript that enhances your ChatGPT experience by addin
 ### Notes:
 
 - The script automatically processes existing code blocks and observes for new ones as you interact with ChatGPT.
+- I recommend the use of this [GPT](https://chatgpt.com/g/g-OtVzlVWW6-artefacty).
 - An "Artefacts Active" indicator briefly appears when the script is loaded successfully.
 - The side panel can be closed using the "Close" button or by clicking outside the panel.
 - Works with Javascript. Must disable CSP policy. Disable at own risk. I recommend using something like [CORS Unblock](https://webextension.org/listing/access-control.html), downloading it from [Github](https://github.com/balvin-perrie/Access-Control-Allow-Origin---Unblock) and changing the urls it is allowed to access in the manifest.json to only the https://chatgpt.com/ domain.
