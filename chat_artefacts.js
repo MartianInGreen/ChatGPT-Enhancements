@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Artefacts
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Claude-like Artefacts inside ChatGPT Code Blocks. Open in Side Panel or Open in New Tab.
 // @match        https://chatgpt.com/*
 // @grant        GM_addElement
@@ -21,6 +21,8 @@
     let isDragging = false;
     let startX;
     let startWidth;
+
+    let chatObserver = null;
 
     function createSlideOutPanel(codeBlock) {
         if (panel) {
@@ -260,7 +262,7 @@
     }
 
     function observeChat() {
-        const observer = new MutationObserver((mutations) => {
+        chatObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.type === 'childList') {
                     mutation.addedNodes.forEach((node) => {
@@ -279,9 +281,29 @@
 
         const chatContainer = document.querySelector('main');
         if (chatContainer) {
-            observer.observe(chatContainer, { childList: true, subtree: true });
+            chatObserver.observe(chatContainer, { childList: true, subtree: true });
         }
     }
+
+    function checkAndReinitialize() {
+        const chatContainer = document.querySelector('main');
+        if (!chatContainer || !chatObserver) {
+            console.log("ChatGPT Artefacts: Observer not running or chat container missing, reinitializing...");
+            reinitializeProcessor();
+        } else {
+            // Check if the observer is still connected to the DOM
+            const observerActive = Array.from(chatObserver.takeRecords()).length > 0 || 
+                                   chatObserver.observe(chatContainer, { childList: true, subtree: true });
+            if (!observerActive) {
+                console.log("ChatGPT Artefacts: Observer disconnected, reinitializing...");
+                reinitializeProcessor();
+            }
+        }
+    }    
+
+    function setupPeriodicCheck() {
+        setInterval(checkAndReinitialize, 10000); // Check every 60 seconds
+    }    
 
     function addIndicator() {
         const indicator = document.createElement('div');
@@ -303,6 +325,17 @@
 
     function initializeProcessor() {
         addIndicator();
+        processCodeBlocks();
+        observeChat();
+        setupPeriodicCheck();
+    }
+
+    function reinitializeProcessor() {
+        try {
+            chatObserver.disconnect();
+            chatObserver = null;
+        } catch (e) { }
+
         processCodeBlocks();
         observeChat();
     }

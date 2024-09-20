@@ -52,7 +52,10 @@ This script is distributed under the MIT License.
 
 ### Changelog
 
-#### Version 1.0 (Current)
+#### Version 1.1 (Current)
+- **Improvement**: Auto reinitialization of the backend-processes when the observer is disconnected. Should lead to improved reliability of the buttons always appearing.
+
+#### Version 1.0 
 - Initial release with core functionality for opening code demos in a side panel or new tab.
 - Added responsive design for the side panel with drag-to-resize feature.
 - Implemented automatic code block processing and dynamic button addition.
