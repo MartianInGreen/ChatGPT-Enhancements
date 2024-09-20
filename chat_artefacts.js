@@ -386,12 +386,37 @@
                     removeFromLibrary(item.id);
                 }
             };
-
             buttonsDiv.appendChild(openSidebarButton);
             buttonsDiv.appendChild(openTabButton);
+
+            // Copy Button
+            const copyButton = document.createElement('button');
+            copyButton.textContent = "📋 Copy Code";
+            copyButton.style.cssText = `
+                padding: 4px 8px;
+                background: #9C27B0;
+                border: none;
+                color: white;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 12px;
+            `;
+            copyButton.onclick = () => {
+                navigator.clipboard.writeText(item.code).then(() => {
+                    // Temporarily change button text to indicate success
+                    const originalText = copyButton.textContent;
+                    copyButton.textContent = "Copied!";
+                    setTimeout(() => {
+                        copyButton.textContent = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    alert('Failed to copy code. Please try again.');
+                });
+            };
+            buttonsDiv.appendChild(copyButton);
             buttonsDiv.appendChild(deleteButton);
             itemDiv.appendChild(buttonsDiv);
-
             libraryContent.appendChild(itemDiv);
         });
     }
