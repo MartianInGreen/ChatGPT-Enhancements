@@ -52,7 +52,15 @@ This script is distributed under the MIT License.
 
 ### Changelog
 
-#### Version 1.1 (Current)
+#### Version 1.2 (Current)
+- Add Library for artefacts.
+  - Added a library for artefacts.
+  - Added save button to add artefacts to the library.
+  - Added ability to run items in library in sidebar and in new tab.
+  - Added ability to delete artefacts from the library.
+  - Added ability to import and export artefacts from the library.
+
+#### Version 1.1 
 - **Improvement**: Auto reinitialization of the backend-processes when the observer is disconnected. Should lead to improved reliability of the buttons always appearing.
 
 #### Version 1.0 
