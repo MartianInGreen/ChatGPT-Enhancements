@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Message Tracker
 // @namespace    http://tampermonkey.net/
-// @version      1.4.3
+// @version      1.4.4
 // @description  Tracks and displays ChatGPT message usage based on model limits, with a toggle button to reopen the info panel. Adds support for gpt-4 model, makes model usage collapsible, and persists collapse state between page reloads.
 // @author       @MartianInGreen
 // @license      MIT
@@ -484,7 +484,7 @@
   toggleButton.style.borderRadius = "50%";
   toggleButton.style.cursor = "pointer";
   toggleButton.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
-  toggleButton.style.zIndex = "10000";
+  toggleButton.style.zIndex = "12";
   toggleButton.style.display = "none"; // Correctly kept as hidden initially
   toggleButton.style.justifyContent = "center";
   toggleButton.style.alignItems = "center";

@@ -43,7 +43,10 @@ This script is distributed under the MIT License.
 
 ### Changelog
 
-#### Version 1.4.3 (Current)
+#### Version 1.4.4 (Current)
+- **Fix**: zIndex of toggle button.
+
+#### Version 1.4.3 
 - **Fix**: GPTs now always update the gpt-4o usage limit.
 
 #### Version 1.4.2 
