@@ -52,7 +52,10 @@ This script is distributed under the MIT License.
 
 ### Changelog
 
-#### Version 1.3 (Current)
+#### Version 1.3.1 (Current)
+- Added support for markdown artefacts.
+
+#### Version 1.3 
 - Added support for Mermaid diagrams.
 
 #### Version 1.2.2 

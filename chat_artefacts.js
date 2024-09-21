@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Artefacts
 // @namespace    http://tampermonkey.net/
-// @version      1.3
+// @version      1.3.1
 // @description  Claude-like Artefacts inside ChatGPT Code Blocks.
 // @match        https://chatgpt.com/*
 // @grant        GM_addElement
@@ -528,6 +528,18 @@
                             mermaid.initialize({ startOnLoad: true });
                         </script>
                     `);
+                } if (language === 'md' || language === 'markdown') {
+                    const doc = iframe.contentDocument || iframe.contentWindow.document;
+                    doc.open();
+                    // Use markdown library to properly render and parse markdown
+                    doc.write(`
+                        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+                        <div id="content"></div>
+                        <script>
+                            document.getElementById('content').innerHTML = marked.parse(\`${codeBlockContent.replace(/`/g, '\\`')}\`);
+                        </script>
+                    `);
+                    doc.close();
                 } else {
                     // If not any of the additionally supported file types, assume it's plain text code
                     newWindow.document.write(`<pre>${escapeHtml(codeBlockContent)}</pre>`);
@@ -644,6 +656,18 @@
                     </div>
                     <script>
                         mermaid.initialize({ startOnLoad: true });
+                    </script>
+                `);
+                doc.close();
+            } if (language === 'md' || language === 'markdown') {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                // Use markdown library to properly render and parse markdown
+                doc.write(`
+                    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+                    <div id="content"></div>
+                    <script>
+                        document.getElementById('content').innerHTML = marked.parse(\`${codeBlockContent.replace(/`/g, '\\`')}\`);
                     </script>
                 `);
                 doc.close();
