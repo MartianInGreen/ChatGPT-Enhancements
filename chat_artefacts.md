@@ -52,7 +52,10 @@ This script is distributed under the MIT License.
 
 ### Changelog
 
-#### Version 1.2 (Current)
+#### Version 1.2.1 (Current)
+- Reworked library UI to be more compact
+
+#### Version 1.2 
 - Add Library for artefacts.
   - Added a library for artefacts.
   - Added save button to add artefacts to the library.

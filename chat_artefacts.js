@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         ChatGPT Artefacts with Enhanced Library
+// @name         ChatGPT Artefacts
 // @namespace    http://tampermonkey.net/
-// @version      1.2
-// @description  Claude-like Artefacts inside ChatGPT Code Blocks with Save functionality and an Enhanced Library. Open in Side Panel, Open in New Tab, or Save to Library.
+// @version      1.2.1
+// @description  Claude-like Artefacts inside ChatGPT Code Blocks.
 // @match        https://chatgpt.com/*
 // @grant        GM_addElement
 // @grant        GM_addStyle
@@ -92,6 +92,7 @@
     // Create the Library Button (Book Icon)
     const toggleButton = document.createElement("button");
     toggleButton.innerHTML = "📖"; // Book Icon
+    // KEEP SIZES LIKE THIS! THEY MATCH THE SIZES OF THE OTHER BUTTONS IN THE CHATGPT UI
     toggleButton.style.fontSize = "10px";
     toggleButton.style.position = "fixed";
     toggleButton.style.bottom = "12px";
@@ -105,10 +106,9 @@
     toggleButton.style.cursor = "pointer";
     toggleButton.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
     toggleButton.style.zIndex = "10000";
-    toggleButton.style.display = "none"; // Correctly kept as hidden initially
+    toggleButton.style.display = "flex"; // Make it visible
     toggleButton.style.justifyContent = "center";
     toggleButton.style.alignItems = "center";
-    toggleButton.style.display = "flex"; // Make it visible
 
     document.body.appendChild(toggleButton);
 
@@ -120,24 +120,21 @@
         left: 50%;
         transform: translate(-50%, -50%);
         width: 50%;
-        height: 50%;
-        max-width: 80%;
-        max-height: 80%;
+        height: 60%;
         background: #2c2c2c;
         box-shadow: 0 2px 10px rgba(0,0,0,0.5);
         border-radius: 8px;
-        z-index: 12;
+        z-index: 12000;
         display: none;
         flex-direction: column;
         color: #e0e0e0;
         font-family: Arial, sans-serif;
     `;
 
-
     // Header
     const libraryHeader = document.createElement('div');
     libraryHeader.style.cssText = `
-        padding: 10px;
+        padding: 15px;
         background: #1e1e1e;
         color: #fff;
         display: flex;
@@ -149,13 +146,14 @@
     `;
     const libraryTitle = document.createElement('span');
     libraryTitle.textContent = "Library";
+    libraryTitle.style.fontSize = "18px";
     const closeLibraryButton = document.createElement('button');
     closeLibraryButton.textContent = "✖";
     closeLibraryButton.style.cssText = `
         background: none;
         border: none;
         color: #fff;
-        font-size: 16px;
+        font-size: 20px;
         cursor: pointer;
     `;
     closeLibraryButton.onclick = () => {
@@ -169,16 +167,19 @@
     // Library Content
     const libraryContent = document.createElement('div');
     libraryContent.style.cssText = `
-        padding: 10px;
+        padding: 20px;
         overflow-y: auto;
         flex-grow: 1;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
     `;
     libraryContainer.appendChild(libraryContent);
 
     // Footer with Add, Export, Import
     const libraryFooter = document.createElement('div');
     libraryFooter.style.cssText = `
-        padding: 10px;
+        padding: 15px;
         background: #1e1e1e;
         display: flex;
         justify-content: space-between;
@@ -189,13 +190,13 @@
     const addButton = document.createElement('button');
     addButton.textContent = "➕ Add";
     addButton.style.cssText = `
-        padding: 5px 10px;
+        padding: 8px 16px;
         background: #4CAF50;
         border: none;
         color: white;
         border-radius: 4px;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 14px;
     `;
     addButton.onclick = () => {
         const title = prompt("Enter a title for the snippet:", `Snippet ${new Date().toLocaleString()}`);
@@ -208,26 +209,26 @@
     const exportButton = document.createElement('button');
     exportButton.textContent = "⬇️ Export";
     exportButton.style.cssText = `
-        padding: 5px 10px;
+        padding: 8px 16px;
         background: #2196F3;
         border: none;
         color: white;
         border-radius: 4px;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 14px;
     `;
     exportButton.onclick = exportLibrary;
 
     const importButton = document.createElement('button');
     importButton.textContent = "⬆️ Import";
     importButton.style.cssText = `
-        padding: 5px 10px;
+        padding: 8px 16px;
         background: #FF9800;
         border: none;
         color: white;
         border-radius: 4px;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 14px;
     `;
     importButton.onclick = () => {
         const fileInput = document.createElement('input');
@@ -246,22 +247,11 @@
     };
 
     libraryFooter.appendChild(addButton);
-    libraryFooter.appendChild(exportButton);
-    libraryFooter.appendChild(importButton);
+    const footerButtons = document.createElement('div');
+    footerButtons.appendChild(exportButton);
+    footerButtons.appendChild(importButton);
+    libraryFooter.appendChild(footerButtons);
     libraryContainer.appendChild(libraryFooter);
-
-    // Resizable Handle
-    const resizeHandle = document.createElement('div');
-    resizeHandle.style.cssText = `
-        width: 15px;
-        height: 15px;
-        background: transparent;
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        cursor: nwse-resize;
-    `;
-    libraryContainer.appendChild(resizeHandle);
 
     document.body.appendChild(libraryContainer);
 
@@ -291,83 +281,140 @@
             emptyMsg.textContent = "Library is empty.";
             emptyMsg.style.textAlign = "center";
             emptyMsg.style.color = "#777";
+            emptyMsg.style.gridColumn = "1 / -1";
             libraryContent.appendChild(emptyMsg);
             return;
         }
 
         library.forEach(item => {
-            const itemDiv = document.createElement('div');
-            itemDiv.style.cssText = `
-                padding: 8px;
-                margin-bottom: 12px;
+            const card = document.createElement('div');
+            card.style.cssText = `
                 background: #3c3c3c;
                 border: 1px solid #555;
-                border-radius: 4px;
+                border-radius: 8px;
+                padding: 12px;
                 display: flex;
                 flex-direction: column;
-            `;
-
-            const titleDiv = document.createElement('div');
-            titleDiv.textContent = item.title;
-            titleDiv.style.cssText = `
-                font-weight: bold;
-                margin-bottom: 6px;
+                justify-content: space-between;
                 color: #fff;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                transition: transform 0.2s, box-shadow 0.2s;
+                cursor: default;
+                height: 140px; /* Reduced height */
             `;
-            itemDiv.appendChild(titleDiv);
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = "scale(1.02)";
+                card.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = "scale(1)";
+                card.style.boxShadow = "0 2px 5px rgba(0,0,0,0.2)";
+            });
 
-            const codeDiv = document.createElement('pre');
-            codeDiv.textContent = item.code;
-            codeDiv.style.cssText = `
-                background: #2c2c2c;
-                padding: 8px;
-                border-radius: 4px;
-                max-height: 150px;
-                overflow-y: auto;
-                font-size: 12px;
-                color: #e0e0e0;
+            const title = document.createElement('h3');
+            title.textContent = item.title;
+            title.style.cssText = `
+                margin: 0 0 10px 0;
+                font-size: 16px;
+                word-break: break-word;
+                height: 40px;
+                overflow: hidden;
             `;
-            itemDiv.appendChild(codeDiv);
+            card.appendChild(title);
 
-            const buttonsDiv = document.createElement('div');
-            buttonsDiv.style.cssText = `
-                margin-top: 6px;
+            const actions = document.createElement('div');
+            actions.style.cssText = `
                 display: flex;
-                justify-content: flex-end;
-                gap: 8px;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: auto;
+            `;
+
+            // Left Actions: Open Sidebar and Open in New Tab
+            const leftActions = document.createElement('div');
+            leftActions.style.cssText = `
+                display: flex;
+                gap: 5px;
             `;
 
             // Open in Sidebar Button
             const openSidebarButton = document.createElement('button');
-            openSidebarButton.textContent = "🔍 Open in Sidebar";
+            openSidebarButton.textContent = "🔍";
+            openSidebarButton.title = "Open in Sidebar";
             openSidebarButton.style.cssText = `
-                padding: 4px 8px;
+                padding: 6px;
                 background: #4CAF50;
                 border: none;
                 color: white;
                 border-radius: 4px;
                 cursor: pointer;
-                font-size: 12px;
+                font-size: 14px;
+                width: 32px;
+                height: 32px;
             `;
-            openSidebarButton.onclick = () => {
-                // Create a temporary codeBlock element to reuse existing functions
+            openSidebarButton.onclick = (e) => {
+                e.stopPropagation();
                 createSlideOutPanel(item.code, true);
             };
 
             // Open in New Tab Button
             const openTabButton = document.createElement('button');
-            openTabButton.textContent = "🌐 Open in New Tab";
+            openTabButton.textContent = "🌐";
+            openTabButton.title = "Open in New Tab";
             openTabButton.style.cssText = `
-                padding: 4px 8px;
+                padding: 6px;
                 background: #2196F3;
                 border: none;
                 color: white;
                 border-radius: 4px;
                 cursor: pointer;
-                font-size: 12px;
+                font-size: 14px;
+                width: 32px;
+                height: 32px;
             `;
-            openTabButton.onclick = () => {
+            openTabButton.onclick = (e) => {
+                e.stopPropagation();
                 openCodeInNewTab(item.code, true);
+            };
+
+            leftActions.appendChild(openSidebarButton);
+            leftActions.appendChild(openTabButton);
+
+            // Right Actions: Copy Code and Delete
+            const rightActions = document.createElement('div');
+            rightActions.style.cssText = `
+                display: flex;
+                gap: 5px;
+            `;
+
+            // Copy Code Button
+            const copyButton = document.createElement('button');
+            copyButton.textContent = "📋";
+            copyButton.title = "Copy Code";
+            copyButton.style.cssText = `
+                padding: 6px;
+                background: #9C27B0;
+                border: none;
+                color: white;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                width: 32px;
+                height: 32px;
+            `;
+            copyButton.onclick = (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(item.code).then(() => {
+                    // Temporarily change button text to indicate success
+                    const originalText = copyButton.textContent;
+                    copyButton.textContent = "✅";
+                    setTimeout(() => {
+                        copyButton.textContent = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    alert('Failed to copy code. Please try again.');
+                });
             };
 
             // Delete Button
@@ -380,44 +427,25 @@
                 cursor: pointer;
                 font-size: 16px;
                 color: #e74c3c;
+                width: 32px;
+                height: 32px;
             `;
-            deleteButton.onclick = () => {
+            deleteButton.onclick = (e) => {
+                e.stopPropagation();
                 if (confirm(`Delete "${item.title}" from library?`)) {
                     removeFromLibrary(item.id);
                 }
             };
-            buttonsDiv.appendChild(openSidebarButton);
-            buttonsDiv.appendChild(openTabButton);
 
-            // Copy Button
-            const copyButton = document.createElement('button');
-            copyButton.textContent = "📋 Copy Code";
-            copyButton.style.cssText = `
-                padding: 4px 8px;
-                background: #9C27B0;
-                border: none;
-                color: white;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 12px;
-            `;
-            copyButton.onclick = () => {
-                navigator.clipboard.writeText(item.code).then(() => {
-                    // Temporarily change button text to indicate success
-                    const originalText = copyButton.textContent;
-                    copyButton.textContent = "Copied!";
-                    setTimeout(() => {
-                        copyButton.textContent = originalText;
-                    }, 2000);
-                }).catch(err => {
-                    console.error('Failed to copy text: ', err);
-                    alert('Failed to copy code. Please try again.');
-                });
-            };
-            buttonsDiv.appendChild(copyButton);
-            buttonsDiv.appendChild(deleteButton);
-            itemDiv.appendChild(buttonsDiv);
-            libraryContent.appendChild(itemDiv);
+            rightActions.appendChild(copyButton);
+            rightActions.appendChild(deleteButton);
+
+            actions.appendChild(leftActions);
+            actions.appendChild(rightActions);
+
+            card.appendChild(actions);
+
+            libraryContent.appendChild(card);
         });
     }
 
@@ -434,14 +462,18 @@
     }
 
     // Function to Open Code in New Tab
-    function openCodeInNewTab(code) {
+    function openCodeInNewTab(code, isHTML) {
         const currentUrl = window.location.href;
         const newUrl = currentUrl + '/artefact';
 
         const newWindow = window.open(newUrl, '_blank');
         if (newWindow) {
             newWindow.document.open();
-            newWindow.document.write(code);
+            if (isHTML) {
+                newWindow.document.write(`<pre>${escapeHtml(code)}</pre>`);
+            } else {
+                newWindow.document.write(`<pre>${escapeHtml(code)}</pre>`);
+            }
 
             // Update the URL display without navigating
             newWindow.history.pushState(null, '', newUrl);
@@ -521,77 +553,32 @@
 
         document.body.appendChild(panel);
 
-        console.log("IsTML:", isHTML);
-
-        if (isHTML == false) {
-            // Clone the code block and remove the "Run Demo" and "Open in New Tab" buttons if they exist
-            const cleanCodeBlock = codeBlock.cloneNode(true);
-            const runDemoButton = cleanCodeBlock.querySelector('.run-demo-button');
-            const openTabButton = cleanCodeBlock.querySelector('.open-tab-button');
-            const saveButtonveButton = cleanCodeBlock.querySelector('.save-button');
-            if (runDemoButton) {
-                runDemoButton.remove();
-            }
-            if (openTabButton) {
-                openTabButton.remove();
-            }
-            if (saveButtonveButton) {
-                saveButtonveButton.remove();
-            }
-
+        if (isHTML === false) {
+            // If not HTML, assume it's plain text code
             const doc = iframe.contentDocument || iframe.contentWindow.document;
             doc.open();
-            doc.write(cleanCodeBlock.textContent);
+            doc.write(`<pre>${escapeHtml(codeBlock)}</pre>`);
             doc.close();
-        } if (isHTML == true) {
+        } else if (isHTML === true) {
             const doc = iframe.contentDocument || iframe.contentWindow.document;
             doc.open();
             doc.write(codeBlock);
             doc.close();
         }
-        
+
         setTimeout(() => panel.style.transform = 'translateX(0)', 0);
 
         header.addEventListener('mousedown', startDragging);
-        document.addEventListener('mousemove', drag);
+        document.addEventListener('mousemove', dragPanel);
         document.addEventListener('mouseup', stopDragging);
 
         // Close the panel if clicking outside
         document.addEventListener('click', function(event) {
-            if (!panel.contains(event.target) && !event.target.closest('.run-demo-button') && !event.target.closest('.open-tab-button')) {
+            if (!panel.contains(event.target)) {
                 panel.style.transform = 'translateX(100%)';
             }
         }, { once: true });
     }
-
-    function openInNewTab(codeBlock) {
-        const cleanCodeBlock = codeBlock.cloneNode(true);
-        const runDemoButton = cleanCodeBlock.querySelector('.run-demo-button');
-        const openTabButton = cleanCodeBlock.querySelector('.open-tab-button');
-        if (runDemoButton) {
-            runDemoButton.remove();
-        }
-        if (openTabButton) {
-            openTabButton.remove();
-        }
-
-        const currentUrl = window.location.href;
-        const newUrl = currentUrl + '/artefact';
-
-        const newWindow = window.open(newUrl, '_blank');
-        if (newWindow) {
-            newWindow.document.open();
-            newWindow.document.write(cleanCodeBlock.textContent);
-
-            // Update the URL display without navigating
-            newWindow.history.pushState(null, '', newUrl);
-
-            newWindow.document.close();
-        } else {
-            alert('Failed to open new tab. Please allow pop-ups for this site.');
-        }
-    }
-
 
     function addButtonsNextToCopy(codeBlock) {
         const outerContainer = codeBlock.closest('.relative');
@@ -662,7 +649,7 @@
                         <line x1="10" y1="14" x2="21" y2="3"></line>
                     </svg>
                 </div>
-                <div>Open in New Tab</div>
+                <div>Tab</div>
             </div>
         `;
         openTabButton.className = 'open-tab-button custom-tooltip';
@@ -769,9 +756,7 @@
             const observerActive = Array.from(chatObserver.takeRecords()).length > 0 || 
                                    chatObserver.observe(chatContainer, { childList: true, subtree: true });
 
-            // console.log(chatObserver)
             if (!observerActive) {
-                // console.log("ChatGPT Artefacts: Observer disconnected, reinitializing...");
                 reinitializeProcessor();
             }
         }

@@ -258,8 +258,8 @@
   // Create the UI container
   const uiContainer = document.createElement("div");
   uiContainer.style.position = "fixed";
-  uiContainer.style.bottom = "20px";
-  uiContainer.style.right = "20px";
+  uiContainer.style.bottom = "50px";
+  uiContainer.style.right = "50px";
   uiContainer.style.width = "250px";
   uiContainer.style.maxHeight = "500px";
   uiContainer.style.overflowY = "auto";
@@ -272,7 +272,7 @@
   uiContainer.style.fontFamily = "Arial, sans-serif";
   uiContainer.style.fontSize = "14px";
   uiContainer.style.cursor = "move";
-  uiContainer.style.display = "block"; // Ensure it's visible initially
+  uiContainer.style.display = "none"; // Ensure it's visible initially
   uiContainer.style.left = "auto"; // Reset left and top to allow positioning
   uiContainer.style.top = "auto";
 
@@ -485,7 +485,7 @@
   toggleButton.style.cursor = "pointer";
   toggleButton.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
   toggleButton.style.zIndex = "12";
-  toggleButton.style.display = "none"; // Correctly kept as hidden initially
+  toggleButton.style.display = "block"; // Correctly kept as hidden initially
   toggleButton.style.justifyContent = "center";
   toggleButton.style.alignItems = "center";
 
