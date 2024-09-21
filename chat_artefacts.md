@@ -52,7 +52,10 @@ This script is distributed under the MIT License.
 
 ### Changelog
 
-#### Version 1.2.1 (Current)
+#### Version 1.2.2 (Current)
+- **Fix**: Opening of new Tab from Library
+
+#### Version 1.2.1 
 - Reworked library UI to be more compact
 
 #### Version 1.2 

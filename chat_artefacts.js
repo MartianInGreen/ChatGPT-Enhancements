@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Artefacts
 // @namespace    http://tampermonkey.net/
-// @version      1.2.1
+// @version      1.2.2
 // @description  Claude-like Artefacts inside ChatGPT Code Blocks.
 // @match        https://chatgpt.com/*
 // @grant        GM_addElement
@@ -470,9 +470,9 @@
         if (newWindow) {
             newWindow.document.open();
             if (isHTML) {
-                newWindow.document.write(`<pre>${escapeHtml(code)}</pre>`);
+                newWindow.document.write(code);
             } else {
-                newWindow.document.write(`<pre>${escapeHtml(code)}</pre>`);
+                newWindow.document.write(code);
             }
 
             // Update the URL display without navigating
