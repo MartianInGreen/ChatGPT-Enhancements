@@ -52,7 +52,10 @@ This script is distributed under the MIT License.
 
 ### Changelog
 
-#### Version 1.2.2 (Current)
+#### Version 1.3 (Current)
+- Added support for Mermaid diagrams.
+
+#### Version 1.2.2 
 - **Fix**: Opening of new Tab from Library
 
 #### Version 1.2.1 

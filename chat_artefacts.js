@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Artefacts
 // @namespace    http://tampermonkey.net/
-// @version      1.2.2
+// @version      1.3
 // @description  Claude-like Artefacts inside ChatGPT Code Blocks.
 // @match        https://chatgpt.com/*
 // @grant        GM_addElement
@@ -42,14 +42,14 @@
         localStorage.setItem(LIBRARY_KEY, JSON.stringify(library));
     }
 
-    function addToLibrary(code, title = `Snippet ${new Date().toLocaleString()}`) {
+    function addToLibrary(code, title = `Snippet ${new Date().toLocaleString()}`, isHTML = false) {
         const library = getLibrary();
         const id = Date.now();
-        library.push({ id, title, code });
+        library.push({ id, title, code, isHTML });
         saveLibrary(library);
         updateLibraryUI();
         updateLibraryButtonVisibility();
-    }
+    }    
 
     function removeFromLibrary(id) {
         let library = getLibrary();
@@ -172,6 +172,7 @@
         flex-grow: 1;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-auto-rows: min-content;
         gap: 15px;
     `;
     libraryContainer.appendChild(libraryContent);
@@ -354,7 +355,22 @@
             `;
             openSidebarButton.onclick = (e) => {
                 e.stopPropagation();
-                createSlideOutPanel(item.code, true);
+
+                let htmlDoc;
+
+                if (item.isHTML) {
+                    htmlDoc = item.code;
+                    createSlideOutPanel(htmlDoc, item.isHTML);
+                } else {
+                    const parser = new DOMParser();
+                    htmlDoc = parser.parseFromString(item.code, 'text/html');
+                }
+
+                // Close the library pop-up
+                libraryContainer.style.display = "none";
+                toggleButton.style.display = "flex";
+
+                createSlideOutPanel(htmlDoc, item.isHTML);
             };
 
             // Open in New Tab Button
@@ -374,7 +390,18 @@
             `;
             openTabButton.onclick = (e) => {
                 e.stopPropagation();
-                openCodeInNewTab(item.code, true);
+
+                let htmlDoc;
+
+                if (item.isHTML) {
+                    htmlDoc = item.code;
+                    createSlideOutPanel(htmlDoc, item.isHTML);
+                } else {
+                    const parser = new DOMParser();
+                    htmlDoc = parser.parseFromString(item.code, 'text/html');
+                }
+
+                openCodeInNewTab(htmlDoc, item.isHTML);
             };
 
             leftActions.appendChild(openSidebarButton);
@@ -462,17 +489,49 @@
     }
 
     // Function to Open Code in New Tab
-    function openCodeInNewTab(code, isHTML) {
+    function openCodeInNewTab(codeBlock, isHTML) {
         const currentUrl = window.location.href;
         const newUrl = currentUrl + '/artefact';
+
+        let codeBlockContent = codeBlock;
+        let codeElement;
+        let languageMatch;
+        let language;
+
+        if (!isHTML) {
+            codeBlockContent = codeBlock.querySelector('code').innerText;
+            codeElement = codeBlock.querySelector('code');
+            languageMatch = codeElement ? codeElement.className.match(/language-(\w+)/) : null;
+            language = languageMatch ? languageMatch[1] : 'unknown';
+        } 
+
+        if (language === 'html') {
+            isHTML = true;
+        }
 
         const newWindow = window.open(newUrl, '_blank');
         if (newWindow) {
             newWindow.document.open();
             if (isHTML) {
-                newWindow.document.write(code);
+                newWindow.document.write(codeBlockContent);
             } else {
-                newWindow.document.write(code);
+                // Get the content of the code block by removing the outer <div><code></code></div> structure
+                console.log("Code block Language: " + language);
+
+                if (language === 'mermaid') {
+                    newWindow.document.write(`
+                        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+                        <div class="mermaid">
+                            ${codeBlockContent}
+                        </div>
+                        <script>
+                            mermaid.initialize({ startOnLoad: true });
+                        </script>
+                    `);
+                } else {
+                    // If not any of the additionally supported file types, assume it's plain text code
+                    newWindow.document.write(`<pre>${escapeHtml(codeBlockContent)}</pre>`);
+                }
             }
 
             // Update the URL display without navigating
@@ -484,7 +543,7 @@
         }
     }
 
-    // ---------------- Existing Functionality ---------------- //
+    // Function to Create Slide-Out Panel
 
     function createSlideOutPanel(codeBlock, isHTML) {
         if (panel) {
@@ -553,16 +612,53 @@
 
         document.body.appendChild(panel);
 
+        console.log(codeBlock);
+
+        let codeBlockContent = codeBlock;
+        let codeElement;
+        let languageMatch;
+        let language;
+
+        if (!isHTML) {
+            codeBlockContent = codeBlock.querySelector('code').innerText;
+            codeElement = codeBlock.querySelector('code');
+            languageMatch = codeElement ? codeElement.className.match(/language-(\w+)/) : null;
+            language = languageMatch ? languageMatch[1] : 'unknown';
+        } 
+
+        if (language === 'html') {
+            isHTML = true;
+        }
+
         if (isHTML === false) {
-            // If not HTML, assume it's plain text code
-            const doc = iframe.contentDocument || iframe.contentWindow.document;
-            doc.open();
-            doc.write(`<pre>${escapeHtml(codeBlock)}</pre>`);
-            doc.close();
+            // Get the content of the code block by removing the outer <div><code></code></div> structure
+            console.log("Code block Language: " + language);
+
+            if (language === 'mermaid') {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(`
+                    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+                    <div class="mermaid">
+                        ${codeBlockContent}
+                    </div>
+                    <script>
+                        mermaid.initialize({ startOnLoad: true });
+                    </script>
+                `);
+                doc.close();
+            } else {
+                // If not any of the additionally supported file types, assume it's plain text code
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(`<pre>${escapeHtml(codeBlockContent)}</pre>`);
+                doc.close();
+            }
+            
         } else if (isHTML === true) {
             const doc = iframe.contentDocument || iframe.contentWindow.document;
             doc.open();
-            doc.write(codeBlock);
+            doc.write(codeBlockContent);
             doc.close();
         }
 
@@ -656,7 +752,7 @@
         openTabButton.style.cssText = buttonStyle;
         openTabButton.onclick = (e) => {
             e.stopPropagation();
-            openInNewTab(codeBlock);
+            openCodeInNewTab(codeBlock);
         };
 
         // Create "Save" button
@@ -677,15 +773,17 @@
         saveButton.style.cssText = buttonStyle;
         saveButton.onclick = (e) => {
             e.stopPropagation();
-            const codeText = codeBlock.querySelector('code') ? codeBlock.querySelector('code').innerText : codeBlock.innerText;
+            const codeElement = codeBlock.querySelector('code');
+            const isHTML = !codeElement;
+            const codeText = isHTML ? codeBlock.innerHTML : codeBlock.outerHTML;
             const title = prompt("Enter a title for the saved snippet:", `Snippet ${new Date().toLocaleString()}`);
             if (title === null || title.trim() === "") {
                 alert("Save cancelled or invalid title.");
                 return;
             }
-            addToLibrary(codeText, title.trim());
+            addToLibrary(codeText, title.trim(), isHTML);
             alert(`"${title.trim()}" has been saved to your library.`);
-        };
+        };        
 
         // Add hover effects
         [runDemoButton, openTabButton, saveButton].forEach(button => {
@@ -859,7 +957,7 @@ GM_addStyle(`
         transition: opacity 0.3s;
         pointer-events: none;
         z-index: 11;
-    }
+    }c
     .custom-tooltip:hover::after {
         opacity: 1;
     }
