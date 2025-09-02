@@ -1,3 +1,6 @@
+## WARNING: CURRENTLY NOT MAINTAINED
+Due to other commitments and Uni I currently don't have the time to maintain this, especially because I'm no longer using ChatGPT. 
+
 # ChatGPT-Enhancements
 
 UserScript enhancements for ChatGPT
